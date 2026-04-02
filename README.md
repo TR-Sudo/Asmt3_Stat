@@ -1,203 +1,148 @@
-# Weather Data Pipeline - Statistical Analysis Assignment
+# Weather Data Pipeline for Statistical Analysis
 
-A complete data pipeline (Bronze → Silver → Gold) that ingests historical weather data from the Open-Meteo API, transforms it into analysis-ready datasets, and prepares for statistical hypothesis testing.
+## Overview
 
-## Project Overview
+This project implements a comprehensive data engineering pipeline for weather data analysis, following the Bronze-Silver-Gold data lakehouse architecture. It ingests historical weather data from the Open-Meteo API, processes it through transformation layers, and prepares datasets for statistical hypothesis testing.
 
-This project demonstrates a modern data engineering workflow:
-1. **Bronze Layer:** Raw API data with timestamps
-2. **Silver Layer:** Cleaned, deduplicated tabular data
-3. **Gold Layer:** Analysis-ready datasets with derived features
+### Key Features
+- **Multi-layer Data Architecture**: Bronze (raw), Silver (cleaned), Gold (analysis-ready)
+- **Dual Implementation**: Both Pandas and DuckDB approaches for transformations
+- **Statistical Readiness**: Derived indicators for hypothesis testing
+- **Geographic Focus**: Weather data for Toronto, Oshawa, and Barrie (Greater Toronto Area)
+- **Time Period**: March 24-31, 2026
 
-**Data Source:** [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api) (free, no API key required)
+## Data Source
+- **API**: [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api)
+- **No API Key Required**: Free tier usage
+- **Data Points**: Daily temperature (max/min), precipitation, wind speed
 
-**Cities:** Toronto, Oshawa, Barrie (Greater Toronto Area)
-
-**Time Period:** March 24-31, 2026 (8 days)
-
----
-
-## Directory Structure
+## Project Structure
 
 ```
-project-root/
+.
 ├── data/
-│   ├── bronze/                          # Raw API responses
-│   │   └── weather/
-│   │       ├── toronto_weather_201T*.json
-│   │       ├── oshawa_weather_2026T*.json
-│   │       └── barrie_weather_2026T*.json
-│   │
-│   ├── silver/                          # Cleaned, flattened tables
-│   │   ├── weather_daily_clean.csv
-│   │   ├── weather_daily_clean_duckdb.csv
-│   │   └── weather_daily_clean_duckdb.json
-│   │
-│   └── gold/                            # Analysis-ready (derived columns)
-│       ├── weather_analysis_ready.csv
-│       ├── weather_analysis_ready_duckdb.csv
-│       ├── weather_daily_summary.csv
-│       └── weather_daily_summary_duckdb.csv
-│
+│   ├── bronze/weather/          # Raw JSON API responses
+│   ├── silver/                  # Cleaned CSV data
+│   └── gold/                    # Analysis-ready datasets with derived features
 ├── ingest/
-│   └── ingest_weather.py               # Fetches API, saves to bronze
-│
+│   └── ingest_weather.py        # Data ingestion script
 ├── transform/
-│   ├── transform_weather.py            # Bronze → Silver (Pandas)
-│   ├── transform_weather_duckdb.py     # Bronze → Silver (DuckDB SQL)
-│   ├── create_gold.py                  # Silver → Gold (Pandas)
-│   ├── create_gold_duckdb.py           # Silver → Gold (DuckDB SQL)
+│   ├── transform_weather.py     # Bronze to Silver (Pandas)
+│   ├── transform_weather_duckdb.py  # Bronze to Silver (DuckDB)
+│   ├── create_gold.py           # Silver to Gold (Pandas)
+│   ├── create_gold_duckdb.py    # Silver to Gold (DuckDB)
 │   └── TRANSFORM_DOCUMENTATION.md
-│
-├── requirements.txt
-├── README.md                           # This file
-└── analysis_preview.md                 # Part 2 statistical planning
+├── notebooks/                   # Jupyter notebooks for analysis
+├── requirements.txt             # Python dependencies
+├── analysis_preview.md          # Statistical analysis planning
+├── GOLD_LAYER_DOCUMENTATION.md  # Gold layer details
+└── README.md
 ```
 
----
+## Installation
 
-## Quick Start
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd Asmt3_Stat
+   ```
 
-### 1. Setup
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-```bash
-# Create virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+## Usage
 
-### 2. Run Pipeline
+### Data Pipeline Execution
 
-```bash
-# Ingest raw data from API (run 2+ times for multiple snapshots)
-python ingest/ingest_weather.py
+1. **Ingest Raw Data**:
+   ```bash
+   python ingest/ingest_weather.py
+   ```
+   Run multiple times to create snapshots for deduplication testing.
 
-# Transform: Bronze → Silver
-python transform/transform_weather.py           # Pandas approach
-python transform/transform_weather_duckdb.py    # DuckDB approach
+2. **Transform to Silver Layer**:
+   ```bash
+   # Pandas approach
+   python transform/transform_weather.py
 
-# Create analysis-ready Gold layer
-python transform/create_gold.py                 # Pandas approach
-python transform/create_gold_duckdb.py          # DuckDB approach
-```
+   # DuckDB approach
+   python transform/transform_weather_duckdb.py
+   ```
 
----
+3. **Create Gold Layer**:
+   ```bash
+   # Pandas approach
+   python transform/create_gold.py
 
-## Data Pipeline Details
+   # DuckDB approach
+   python transform/create_gold_duckdb.py
+   ```
 
-### Bronze Layer
-- **Input:** Open-Meteo API (7-day historical weather)
-- **Output:** 6 raw JSON files (3 cities × 2 ingestion runs)
-- **Records:** 48 total (24 deduplicated)
-- **Script:** `ingest/ingest_weather.py`
+### Data Layers
 
-**Sample record:**
-```json
-{
-  "latitude": 43.690685,
-  "longitude": -79.41174,
-  "timezone": "America/Toronto",
-  "daily": {
-    "time": ["2026-03-24", "2026-03-25", ...],
-    "temperature_2m_max": [3.4, 5.4, ...],
-    "temperature_2m_min": [-7.2, -2.5, ...],
-    "precipitation_sum": [0.0, 0.2, ...],
-    "wind_speed_10m_max": [22.4, 21.0, ...]
-  }
-}
-```
+#### Bronze Layer
+- Raw API responses stored as JSON
+- Contains nested data structures
+- Preserves original timestamps and metadata
 
-### Silver Layer
-- **Input:** Bronze JSON files
-- **Output:** Flat, deduplicated CSV with clear column names
-- **Records:** 24 (deduplicated)
-- **Deduplication Strategy:** Group by (date, city), keep latest source_file
-- **Scripts:** `transform/transform_weather.py`, `transform/transform_weather_duckdb.py`
+#### Silver Layer
+- Flattened, deduplicated tabular data
+- Clean column names and data types
+- Removes duplicates based on date and city
 
-**Columns:**
-```
-date, city, latitude, longitude, timezone,
-temp_max_celsius, temp_min_celsius, 
-precipitation_mm, wind_speed_max_kmh,
-source_file, temp_range_celsius
-```
+#### Gold Layer
+- Analysis-ready datasets with derived features
+- Binary indicators for statistical testing
+- Aggregated summaries
 
-**Data Quality:**
-- ✓ No missing values (24/24 clean)
-- ✓ All types validated
-- ✓ Temperature range: -12.0°C to 18.8°C
-
-### Gold Layer
-- **Input:** Silver CSV
-- **Output:** Analysis-ready tables with **11 derived binary indicators**
-- **Records:** 24 city-days + 8 daily aggregates
-- **Scripts:** `transform/create_gold.py`, `transform/create_gold_duckdb.py`
-
-**Derived Columns (for Part 2 analysis):**
-
-| Category | Indicator | Threshold | % of Data |
-|----------|-----------|-----------|-----------|
-| **Temperature** | is_cold_day | temp_min < 0°C | 67% |
-| | is_hot_day | temp_max > 20°C | 0% |
-| | is_freezing | temp_min ≤ -10°C | 0% |
-| | extreme_temp_range | range > 15°C | 4% |
-| **Precipitation** | is_rainy_day | precip > 0mm | **54%** |
-| | is_wet_day | precip > 5mm | 29% |
-| | is_heavy_rain | precip > 10mm | 13% |
-| **Wind** | is_windy_day | wind > 30 km/h | 0% |
-| **Temporal** | is_weekend | Sat/Sun | 25% |
-| | day_of_week | Mon–Sun | – |
-
----
-
-## Part 2: Statistical Analysis
+## Statistical Analysis
 
 ### Research Question
-**Do cities in the Greater Toronto Area experience statistically different minimum temperatures?**
+Do cities in the Greater Toronto Area experience statistically different minimum temperatures?
 
-### Hypotheses & Tests
+### Planned Tests
+- **ANOVA**: Compare minimum temperatures across cities
+- **Chi-Square**: Test association between rain and cold days
+- **t-test**: Compare weekday vs. weekend temperatures
 
-| H₀ | H₁ | Test | Why |
-|----|----|------|-----|
-| City doesn't affect min temp | At least one city differs | **ANOVA** | Compares 3+ groups |
-| Rain & cold are independent | They are associated | **Chi-Square** | Binary × binary |
-| Weekday = Weekend temps | They differ | **t-test** | 2-group comparison |
+### Derived Indicators
+- Temperature: cold days, hot days, freezing conditions, extreme ranges
+- Precipitation: rainy days, wet days, heavy rain
+- Wind: windy days
+- Temporal: weekends, day of week
 
-### Data Quality for Analysis
-- ✓ 24 clean observations (8 per city)
-- ✓ No missing values
-- ✓ Temperature precision: 0.1°C
-- ✓ Multiple ingestion runs validate pipeline
+## Technologies
 
-See [analysis_preview.md](analysis_preview.md) for full planning.
+- **Python**: Core programming language
+- **Pandas**: Data manipulation and analysis
+- **DuckDB**: Embedded analytical database
+- **Requests**: HTTP API calls
+- **Open-Meteo API**: Weather data source
 
----
+## Data Quality
 
-## Implementation Approaches
+- **Completeness**: No missing values in processed datasets
+- **Accuracy**: Validated against API specifications
+- **Consistency**: Standardized units and formats
+- **Timeliness**: Current data for analysis period
 
-### Pandas (Intuitive, Python-native)
-```python
-import pandas as pd
+## Documentation
 
-df = pd.read_csv("data/silver/weather_daily_clean.csv")
-df["is_cold_day"] = (df["temp_min_celsius"] < 0).astype(int)
-df.to_csv("data/gold/weather_analysis_ready.csv", index=False)
-```
+- [Transform Documentation](transform/TRANSFORM_DOCUMENTATION.md)
+- [Gold Layer Documentation](GOLD_LAYER_DOCUMENTATION.md)
+- [Analysis Preview](analysis_preview.md)
 
-### DuckDB (SQL, optimized for analytics)
-```python
-import duckdb
+## License
 
-sql = """
-SELECT 
-    date, city, temp_min_celsius,
-    CASE WHEN temp_min_celsius < 0 THEN 1 ELSE 0 END as is_cold_day
-FROM read_csv_auto('data/silver/weather_daily_clean.csv')
-"""
-results = duckdb.query(sql).to_df()
+This project is for educational purposes as part of a statistical analysis assignment.
 ```
 
 Both produce identical outputs; choose based on team preference.
