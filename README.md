@@ -163,10 +163,10 @@ This project is for educational purposes as part of a statistical analysis assig
 
 ## Author
 
-**Assignment:** STAT Course - Part 1: Data Engineering  
+**Assignment:** STATS Course
 **Date:** March 31, 2026  
 **Language:** Python 3.12  
-**Tools:** Pandas, DuckDB, Open-Meteo API  
+**Tools:** Pandas, Open-Meteo API  
 
 ---
 
