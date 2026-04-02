@@ -1,60 +1,33 @@
 # Analysis Preview Memo
 
-## Research Question
-**Do cities in the Greater Toronto Area (Toronto, Oshawa, Barrie) experience statistically different minimum temperatures?**
+## Part 2 Planning Questions
+
+1. What is one statistical question you plan to answer in Part 2?
+- Do minimum temperatures differ between Toronto, Oshawa, and Barrie? This asks if location (in the GTA) affects temperature.
+
+2. What is your outcome variable?
+- `temp_min_celsius` (continuous): daily minimum temperature in Celsius.
+
+3. What is your grouping variable, if any?
+- `city` (categorical with 3 levels).
+
+4. What is one binary variable you created, and why?
+- `is_cold_day` where `temp_min_celsius < 0`. It allows testing frost risk and comparing cold-day frequency across cities.
+
+5. What null and alternative hypotheses might you test?
+- H₀: mean `temp_min_celsius` is equal across all three cities.
+- H₁: at least one city has a different mean `temp_min_celsius`.
+
+6. Which test do you think fits best, and why?
+- One-Way ANOVA fits best because we compare one continuous outcome across three independent groups.
 
 ---
 
-## Key Variables
-
-| Variable | Type | Use |
-|----------|------|-----|
-| `temp_min_celsius` | Continuous | Outcome (what we're measuring) |
-| `city` | Categorical (3 levels) | Grouping (explains geographic/lake effects) |
-| `is_cold_day` (temp_min < 0°C) | Binary | Tests frost/freeze risk; 67% of data |
-| `is_rainy_day` (precip > 0mm) | Binary | Explores weather associations; 54% of data |
-| `is_weekend` | Binary | Control for day-of-week effects |
+## Pipeline support for this plan
+- Gold table includes `city`, `temp_min_celsius`, and `is_cold_day` so analysis variables are already prepared.
+- Derived binary flag `is_cold_day` supports secondary analyses (proportion comparisons, chi-square tests).
+- Data cleaning and alignment in silver/gold stages set up fast hypothesis testing in Part 2.
 
 ---
 
-## Hypotheses & Statistical Tests
-
-### H₁: City Effect on Temperature
-- **H₀:** Mean minimum temp is same across 3 cities
-- **H₁:** At least one city differs
-- **Test:** **One-Way ANOVA** (compares 3+ groups, continuous outcome)
-- **If significant:** Tukey HSD for pairwise comparisons
-
-### H₂: Rain–Temperature Association
-- **H₀:** Cold days and rainy days are independent
-- **H₁:** They are associated
-- **Test:** **Chi-Square Test** (binary × binary variables)
-
-### H₃: Weekend Effect
-- **H₀:** Temps don't differ weekday vs. weekend
-- **H₁:** They do differ
-- **Test:** **Independent t-test** (2 groups, continuous outcome)
-
----
-
-## Why This Pipeline Supports Analysis
-
-| Gold Column | Purpose |
-|---|---|
-| `city` | Enables ANOVA grouping |
-| `temp_min_celsius` | Provides continuous outcome |
-| `is_cold_day`, `is_rainy_day` | Binary indicators for association tests |
-| `is_weekend`, `day_of_week` | Temporal stratification to control confounds |
-| No missing values (24/24 clean) | Ready for analysis without cleaning |
-
----
-
-## Data Quality Check
-- ✓ No missing values
-- ✓ 8 observations per city (balanced)
-- ✓ Temperature range: -12°C to 18.8°C
-- ⚠ Only 8 days (short window; assumes no autocorrelation)
-
----
-
-**Status:** Ready for Part 2 Statistical Analysis
+**Status:** Planning memo complete; ready to finalize Gold table and run Part 2 tests.

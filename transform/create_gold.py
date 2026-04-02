@@ -5,9 +5,7 @@ Reads Silver data and creates analysis-ready table with derived columns
 """
 
 import pandas as pd
-import duckdb
 from pathlib import Path
-from datetime import datetime
 
 
 def create_gold_layer():
