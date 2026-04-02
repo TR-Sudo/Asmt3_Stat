@@ -6,7 +6,6 @@ This project implements a comprehensive data engineering pipeline for weather da
 
 ### Key Features
 - **Multi-layer Data Architecture**: Bronze (raw), Silver (cleaned), Gold (analysis-ready)
-- **Dual Implementation**: Both Pandas and DuckDB approaches for transformations
 - **Statistical Readiness**: Derived indicators for hypothesis testing
 - **Geographic Focus**: Weather data for Toronto, Oshawa, and Barrie (Greater Toronto Area)
 - **Time Period**: March 24-31, 2026
@@ -27,10 +26,8 @@ This project implements a comprehensive data engineering pipeline for weather da
 ├── ingest/
 │   └── ingest_weather.py        # Data ingestion script
 ├── transform/
-│   ├── transform_weather.py     # Bronze to Silver (Pandas)
-│   ├── transform_weather_duckdb.py  # Bronze to Silver (DuckDB)
-│   ├── create_gold.py           # Silver to Gold (Pandas)
-│   ├── create_gold_duckdb.py    # Silver to Gold (DuckDB)
+│   ├── transform_weather.py     # Bronze to Silver transformation
+│   ├── create_gold.py           # Silver to Gold transformation
 │   └── TRANSFORM_DOCUMENTATION.md
 ├── notebooks/                   # Jupyter notebooks for analysis
 ├── requirements.txt             # Python dependencies
@@ -70,20 +67,12 @@ This project implements a comprehensive data engineering pipeline for weather da
 
 2. **Transform to Silver Layer**:
    ```bash
-   # Pandas approach
    python transform/transform_weather.py
-
-   # DuckDB approach
-   python transform/transform_weather_duckdb.py
    ```
 
 3. **Create Gold Layer**:
    ```bash
-   # Pandas approach
    python transform/create_gold.py
-
-   # DuckDB approach
-   python transform/create_gold_duckdb.py
    ```
 
 ### Data Layers
@@ -123,7 +112,6 @@ Do cities in the Greater Toronto Area experience statistically different minimum
 
 - **Python**: Core programming language
 - **Pandas**: Data manipulation and analysis
-- **DuckDB**: Embedded analytical database
 - **Requests**: HTTP API calls
 - **Open-Meteo API**: Weather data source
 
@@ -142,62 +130,7 @@ Do cities in the Greater Toronto Area experience statistically different minimum
 
 ## License
 
-This project is for educational purposes as part of a statistical analysis assignment.
-```
-
-Both produce identical outputs; choose based on team preference.
-
----
-
-## Files & Outputs
-
-### Ingestion
-- **Script:** `ingest/ingest_weather.py`
-- **Output:** `data/bronze/weather/*.json` (6 files)
-- **Rows:** 48 (3 cities × 8 days × 2 runs)
-
-### Transformation (Bronze → Silver)
-- **Scripts:** `transform/transform_weather.py` + DuckDB variant
-- **Output:** `data/silver/weather_daily_clean.csv` (24 rows × 12 cols)
-- **Time:** <1 second
-
-### Analysis Ready (Silver → Gold)
-- **Scripts:** `transform/create_gold.py` + DuckDB variant
-- **Outputs:** 
-  - `data/gold/weather_analysis_ready.csv` (24 rows × 20 cols)
-  - `data/gold/weather_daily_summary.csv` (8 rows × 7 cols)
-
----
-
-## Key Metrics
-
-```
-Cities:              3 (Toronto, Oshawa, Barrie)
-Days:                8 (2026-03-24 to 2026-03-31)
-Temperature Range:   -12.0°C to 18.8°C
-Total Precipitation: 124.6mm (19 rainy days)
-Cold Days:           16/24 (67%)
-Weekend Days:        6/24 (25%)
-```
-
----
-
-## Dependencies
-
-- `requests==2.31.0` – API calls
-- `pandas==2.2.0` – Data manipulation
-- `duckdb==0.10.0` – SQL analytics
-- `python-dotenv==1.0.0` – Environment variables
-
----
-
-## Data Quality Checks
-
-✓ **Completeness:** No missing values (24/24 valid observations)  
-✓ **Consistency:** All timestamps in ISO 8601 format  
-✓ **Deduplication:** Duplicates removed (48 → 24 records)  
-✓ **Type Safety:** All numeric columns properly cast  
-✓ **Pipeline Validation:** Ingestion run twice; results consistent  
+This project is for educational purposes as part of a statistical analysis assignment.  
 
 ---
 
